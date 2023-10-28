@@ -11,8 +11,17 @@ endif()
 
 project ("uchu-p")
 
+set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp")
+set(HEADER_FILE "src/lib/logger.h")
+
 # Ajoutez une source à l'exécutable de ce projet.
-add_executable (uchu-p "src/main.cpp")
+add_executable (uchu-p ${SRC_FILE} ${HEADER_FILE})
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    src/lib
+  
+    # Remember to add the include directories of any other libraries too
+)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET uchu-p PROPERTY CXX_STANDARD 20)

@@ -1,13 +1,15 @@
 ﻿// uchu-p.cpp : définit le point d'entrée de l'application.
 //
 
-#include <iostream>
-
+#include "logger.h"
 
 using namespace std;
 
 int main()
 {
-	cout << "Hello CMake." << endl;
+	print(INFO, "HELLO");
+	print(DEBUG, "HELLO");
+	print(ERROR, "HELLO");
+
 	return 0;
 }
