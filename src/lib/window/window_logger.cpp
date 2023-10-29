@@ -1,7 +1,11 @@
 #include "logger.h"
 #include <iostream>
+#include <stdio.h>
 #include <sstream>
 #include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
 
 const char* get_timedate() {
 	time_t t = time(NULL);
@@ -33,4 +37,28 @@ void print(level level,const char* message) {
 	default:
 		std::cout << time << " " << message << std::endl;
 	}
+}
+
+
+void printFormat(level level, const char* format, ...) {
+	//to do add level to format
+	const char* time = get_timedate();
+	switch (level) {
+	case INFO:
+		std::cout << time << " " << "[INFO] : ";
+		break;
+	case DEBUG:
+		std::cout << time << " " << "[DEBUG] : " ;
+		break;
+	case ERROR:
+		std::cout << time << " " << "[ERROR] : ";
+		break;
+	default:
+		std::cout << time;
+	}
+	va_list vl;
+	va_start(vl, format);
+	vprintf(format, vl);
+	va_end(vl);
+	std::cout << std::endl;
 }
