@@ -11,8 +11,8 @@ endif()
 
 project ("uchu-p")
 
-set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp")
-set(HEADER_FILE "src/lib/logger.h")
+set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp")
+set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h")
 
 # Ajoutez une source à l'exécutable de ce projet.
 add_executable (uchu-p ${SRC_FILE} ${HEADER_FILE})
