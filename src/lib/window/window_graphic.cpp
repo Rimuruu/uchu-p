@@ -2,8 +2,58 @@
 #undef UNICODE
 #define UNICODE
 #include <windows.h>
+#include <objidl.h>
+
+
+HWND hwnd;
+
+int FPS = 60;
+int RUNNING = 1;
+int FRAMETIME = 1000 / FPS;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+typedef unsigned int u_int32;
+
+struct win32_offscreen_buffer {
+    // Pixels are alwasy 32-bits wide, memory Order BB GG RR XX, 0xXXRRGGBB
+    BITMAPINFO info;
+    void* memory;
+    int width;
+    int height;
+};
+
+win32_offscreen_buffer globalBufferWin = {};
+
+VOID OnPaint(HDC hdc,Buffer* buffer)
+{
+    unsigned int* pixel = (unsigned int*) globalBufferWin.memory;
+    
+    for (int i = 0; i < globalBufferWin.width * globalBufferWin.height; i++) {
+        //printFormat(INFO, "%d paint", pixel[i]);
+        //pixel[i] = 0x00ff0000;
+
+    }
+    //printFormat(INFO, "%d paint 2", pixel[2]);
+    //printFormat(INFO,"%d paint", globalBufferWin.width);
+    StretchDIBits(
+        hdc,
+        0,
+        0,
+        globalBufferWin.width,
+        globalBufferWin.height,
+        0,
+        0,
+        globalBufferWin.width,
+        globalBufferWin.height,
+        globalBufferWin.memory,
+        &(globalBufferWin.info),
+        DIB_RGB_COLORS,
+        SRCCOPY
+    );
+
+    
+}
 
 LPCWSTR ConvertToLPCWSTR(const char* text) {
     int size = MultiByteToWideChar(CP_ACP, 0, text, -1, nullptr, 0);
@@ -22,7 +72,11 @@ LPCWSTR ConvertToLPCWSTR(const char* text) {
     return wideText;
 }
 
-int createWindow(int x, int y, int width, int height, const char* title) {
+int createWindow(int x, int y, int width, int height, const char* title,Buffer* buffer) {
+
+    
+
+
     HINSTANCE hInstance =  GetModuleHandle(0);
     
     // Register the window class.
@@ -38,11 +92,11 @@ int createWindow(int x, int y, int width, int height, const char* title) {
 
     // Create the window.
 
-    HWND hwnd = CreateWindowEx(
+    hwnd = CreateWindowEx(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
         ConvertToLPCWSTR(title),    // Window text
-        WS_OVERLAPPEDWINDOW,            // Window style
+        WS_OVERLAPPED | WS_SYSMENU,            // Window style
 
         // Size and position
         x, y, width, height,
@@ -58,27 +112,48 @@ int createWindow(int x, int y, int width, int height, const char* title) {
         return 0;
     }
 
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)buffer);
+
     ShowWindow(hwnd, 1);
 
-    // Run the message loop.
+    globalBufferWin.memory = VirtualAlloc(
+        0,
+        BYTES_PER_PIXEL*width*height,
+        MEM_RESERVE | MEM_COMMIT,
+        PAGE_READWRITE
 
-    MSG msg = { };
-    while (GetMessage(&msg, NULL, 0, 0) > 0)
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+    );
+    globalBufferWin.height = height;
+    globalBufferWin.width = width;
+    globalBufferWin.info.bmiHeader.biSize = sizeof(globalBufferWin.info.bmiHeader);
+    globalBufferWin.info.bmiHeader.biWidth = width;
+    globalBufferWin.info.bmiHeader.biHeight = height;
+    globalBufferWin.info.bmiHeader.biPlanes = 1;
+    globalBufferWin.info.bmiHeader.biBitCount = 32;
+    globalBufferWin.info.bmiHeader.biCompression = BI_RGB;
+
+    buffer->memory = globalBufferWin.memory;
+    buffer->sizeX = globalBufferWin.width;
+    buffer->sizeY = globalBufferWin.height;
+
+
+
+    
 
     return 0;
 }
 
 
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    printFormat(INFO, "uMsg %d ", uMsg);
+    static int i = 1;
+    Buffer* buffer = (Buffer*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    //printFormat(INFO, "uMsg %d ", uMsg);
     switch (uMsg)
     {
     case WM_DESTROY:
+        RUNNING = 0;
         PostQuitMessage(0);
         return 0;
 
@@ -87,14 +162,72 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
 
-        // All painting occurs here, between BeginPaint and EndPaint.
-
-        FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
-
+        OnPaint(hdc,buffer);
+        
         EndPaint(hwnd, &ps);
     }
     return 0;
 
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+static inline LONGLONG GetTicks()
+{
+    LARGE_INTEGER ticks;
+    LARGE_INTEGER frequency;
+    if (!QueryPerformanceCounter(&ticks))
+    {
+        return 0;
+    }
+
+    if (!QueryPerformanceFrequency(&frequency)) {
+        return 0;
+    }
+
+    return  (ticks.QuadPart/ frequency.QuadPart)*1000;
+}
+
+int loop(Buffer* buffer) {
+
+
+
+    MSG msg = { };
+    int countFrame = 0;
+
+
+
+    LONGLONG elapsedTime;
+    LONGLONG startTimeFrame;
+    LONGLONG endTime;
+    LONGLONG startTime = GetTicks();
+  
+    while (RUNNING){
+        startTimeFrame = GetTicks();
+        while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        updateAndRender(buffer);
+        RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
+        countFrame++;
+        endTime = GetTicks();
+        elapsedTime = endTime - startTimeFrame;
+        if (elapsedTime < FRAMETIME) {
+            Sleep(FRAMETIME - elapsedTime);
+        }
+        if (endTime - startTime > 1000) {
+            printFormat(INFO, "%d FPS\n", (countFrame));
+            startTime = GetTicks();
+            countFrame = 0;
+        }
+    }
+    
+        
+        
+
+   
+
+    return 0;
 }

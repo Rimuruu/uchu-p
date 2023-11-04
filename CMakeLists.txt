@@ -11,7 +11,7 @@ endif()
 
 project ("uchu-p")
 
-set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp")
+set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp" "src/game/uchu.cpp")
 set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h")
 
 # Ajoutez une source à l'exécutable de ce projet.
@@ -19,6 +19,7 @@ add_executable (uchu-p ${SRC_FILE} ${HEADER_FILE})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     src/lib
+    src/game
   
     # Remember to add the include directories of any other libraries too
 )
