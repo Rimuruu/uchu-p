@@ -1,8 +1,11 @@
 #pragma once
 
 #include "logger.h"
+#include "graphic.h"
 #define BYTES_PER_PIXEL 4
 
+
+struct Buffer;
 struct Buffer {
 	// RR GG BB
 	void* memory;

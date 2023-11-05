@@ -27,15 +27,8 @@ win32_offscreen_buffer globalBufferWin = {};
 
 VOID OnPaint(HDC hdc,Buffer* buffer)
 {
-    unsigned int* pixel = (unsigned int*) globalBufferWin.memory;
-    
-    for (int i = 0; i < globalBufferWin.width * globalBufferWin.height; i++) {
-        //printFormat(INFO, "%d paint", pixel[i]);
-        //pixel[i] = 0x00ff0000;
+  
 
-    }
-    //printFormat(INFO, "%d paint 2", pixel[2]);
-    //printFormat(INFO,"%d paint", globalBufferWin.width);
     StretchDIBits(
         hdc,
         0,
@@ -92,20 +85,33 @@ int createWindow(int x, int y, int width, int height, const char* title,Buffer* 
 
     // Create the window.
 
+    DWORD window_style = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU  ;
+    RECT window_rect;
+    window_rect.right = width;
+    window_rect.bottom = height;
+    window_rect.left = window_rect.top = 0;
+
+    AdjustWindowRectEx(&window_rect, window_style, FALSE, window_style);
+
+    int max_right = window_rect.right - window_rect.left;
+    int max_bottom = window_rect.bottom - window_rect.top;
+
     hwnd = CreateWindowEx(
         0,                              // Optional window styles.
         CLASS_NAME,                     // Window class
         ConvertToLPCWSTR(title),    // Window text
-        WS_OVERLAPPED | WS_SYSMENU,            // Window style
+        window_style,            // Window style
 
         // Size and position
-        x, y, width, height,
+        CW_USEDEFAULT, CW_USEDEFAULT, max_right, max_bottom,
 
         NULL,       // Parent window    
         NULL,       // Menu
         hInstance,  // Instance handle
         NULL        // Additional application data
     );
+
+
 
     if (hwnd == NULL)
     {
@@ -147,9 +153,9 @@ int createWindow(int x, int y, int width, int height, const char* title,Buffer* 
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    static int i = 1;
+
     Buffer* buffer = (Buffer*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-    //printFormat(INFO, "uMsg %d ", uMsg);
+
     switch (uMsg)
     {
     case WM_DESTROY:
@@ -230,4 +236,35 @@ int loop(Buffer* buffer) {
    
 
     return 0;
+}
+
+int drawRectangle(int srcX, int srcY, int destX, int destY, int color) {
+    int rsrcX = srcX < destX? srcX: destX;
+    int rsrcY = srcY < destY ? srcY : destY;
+    int rdestX = srcX > destX ? srcX : destX;
+    int rdestY = srcY > destY ? srcY : destY;
+
+    u_int32* pixels = (u_int32*)globalBufferWin.memory;
+
+    rdestX = rdestX > globalBufferWin.width ? globalBufferWin.width : rdestX;
+    rdestY = rdestY > globalBufferWin.height ? globalBufferWin.height : rdestY;
+    rsrcX = rsrcX < 0 ? 0 : rsrcX;
+    rsrcY = rsrcY < 0 ? 0 : rsrcY;
+
+
+    for (int x = rsrcX; x < rdestX; x++) {
+        for (int y = rsrcY; y < rdestY; y++) {
+            int caseX = (y * globalBufferWin.width) + x;
+            
+            pixels[caseX] = color;
+            
+        }
+    }
+
+
+
+    return 0;
+
+
+
 }
