@@ -18,16 +18,20 @@ short RUNNING = 1;
 
 int main()
 {
-	Buffer* buffer = new Buffer(WIDTH, HEIGHT);
+	Buffer buffer = Buffer(WIDTH, HEIGHT);
+	Game_input input = Game_input();
+	Game game{ buffer,input };
 	//time_t t = time(NULL);
 	print(INFO, "HELLO");
 	print(DEBUG, "HELLO");
 	print(ERROR, "HELLO");
-	init(buffer, WIDTH,HEIGHT);
-	createWindow(100, 100,WIDTH,HEIGHT, title, buffer);
-	loop(buffer);
+
+	createWindow(100, 100,WIDTH,HEIGHT, title, &game);
+	loop(&game);
 
 
-	end(buffer);
+
 	return 0;
 }
+
+

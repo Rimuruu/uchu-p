@@ -41,7 +41,7 @@ void print(level level,const char* message) {
 
 
 void printFormat(level level, const char* format, ...) {
-	//to do add level to format
+
 	const char* time = get_timedate();
 	switch (level) {
 	case INFO:

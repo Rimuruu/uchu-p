@@ -1,11 +1,13 @@
 #pragma once
-
+#include "key_binding.h"
 #include "logger.h"
 #include "graphic.h"
 #define BYTES_PER_PIXEL 4
 
 
-struct Buffer;
+typedef unsigned int u_int32;
+
+
 struct Buffer {
 	// RR GG BB
 	void* memory;
@@ -16,6 +18,32 @@ struct Buffer {
 };
 
 
-void init(Buffer* buffer, unsigned int width, unsigned int height);
-void updateAndRender(Buffer* buffer);
-void end(Buffer* buffer);
+
+struct Button_state {
+	u_int32 keyCode=0;
+	short state; // 0 is released, 1 is pressed
+ };
+
+struct Node_button{
+	Button_state val;
+	Node_button* next;
+	Node_button(Button_state val);
+};
+
+struct Game_input {
+	Node_button* head;
+	const static int size = 16;
+	int front = 0;
+	Button_state pop();
+	void queue(Button_state key);
+};
+
+struct Game {
+	Buffer buffer;
+	Game_input input;
+};
+
+
+
+
+void updateAndRender(Game* game);

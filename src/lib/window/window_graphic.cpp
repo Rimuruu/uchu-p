@@ -1,8 +1,9 @@
 #include "graphic.h"
 #undef UNICODE
 #define UNICODE
+#define _WIN32_WINNT 0x502 
 #include <windows.h>
-#include <objidl.h>
+
 
 
 HWND hwnd;
@@ -10,6 +11,15 @@ HWND hwnd;
 int FPS = 60;
 int RUNNING = 1;
 int FRAMETIME = 1000 / FPS;
+
+std::unordered_map<u_int32, u_int32> keyMapping = {
+
+    {VK_UP,K_UP},
+    {VK_RIGHT,K_RIGHT},
+    {VK_DOWN,K_DOWN},
+    {VK_LEFT,K_LEFT},
+    {VK_SPACE,K_SPACE},
+};
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -65,7 +75,7 @@ LPCWSTR ConvertToLPCWSTR(const char* text) {
     return wideText;
 }
 
-int createWindow(int x, int y, int width, int height, const char* title,Buffer* buffer) {
+int createWindow(int x, int y, int width, int height, const char* title,Game* game) {
 
     
 
@@ -118,7 +128,7 @@ int createWindow(int x, int y, int width, int height, const char* title,Buffer* 
         return 0;
     }
 
-    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)buffer);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)game);
 
     ShowWindow(hwnd, 1);
 
@@ -138,9 +148,9 @@ int createWindow(int x, int y, int width, int height, const char* title,Buffer* 
     globalBufferWin.info.bmiHeader.biBitCount = 32;
     globalBufferWin.info.bmiHeader.biCompression = BI_RGB;
 
-    buffer->memory = globalBufferWin.memory;
-    buffer->sizeX = globalBufferWin.width;
-    buffer->sizeY = globalBufferWin.height;
+    game->buffer.memory = globalBufferWin.memory;
+    game->buffer.sizeX = globalBufferWin.width;
+    game->buffer.sizeY = globalBufferWin.height;
 
 
 
@@ -149,13 +159,38 @@ int createWindow(int x, int y, int width, int height, const char* title,Buffer* 
     return 0;
 }
 
+u_int32 keyMap(WPARAM wParam) {
+    return keyMapping[(u_int32)wParam];
+}
 
+int main();
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    // You can process Windows-specific initialization here if needed.
+
+    AllocConsole();
+    AttachConsole(GetCurrentProcessId());
+
+    // Redirect stdin, stdout, and stderr to the console
+    FILE* conin, * conout, * conerr;
+    freopen_s(&conin, "CONIN$", "r", stdin);
+    freopen_s(&conout, "CONOUT$", "w", stdout);
+    freopen_s(&conerr, "CONOUT$", "w", stderr);
+
+    int argc = __argc;
+    char** argv = __argv;
+
+    int result =main();
+    FreeConsole();
+    return result;
+}
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 
-    Buffer* buffer = (Buffer*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-
+    Game* game = (Game*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    u_int32 v;
+    Button_state key;
     switch (uMsg)
     {
     case WM_DESTROY:
@@ -168,11 +203,24 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
 
-        OnPaint(hdc,buffer);
+        OnPaint(hdc,&(game->buffer));
         
         EndPaint(hwnd, &ps);
     }
     return 0;
+    case WM_KEYDOWN:
+        v = keyMap(wParam);
+        if (v == 0) break;
+        key = { v,1 };
+        game->input.queue(key);
+        break;
+    case WM_KEYUP:
+        v = keyMap(wParam);
+
+        if (v == 0) break;
+         key = { v,0 };
+        game->input.queue(key);
+        break;
 
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -194,7 +242,7 @@ static inline LONGLONG GetTicks()
     return  (ticks.QuadPart/ frequency.QuadPart)*1000;
 }
 
-int loop(Buffer* buffer) {
+int loop(Game* game) {
 
 
 
@@ -215,7 +263,7 @@ int loop(Buffer* buffer) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        updateAndRender(buffer);
+        updateAndRender(game);
         RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
         countFrame++;
         endTime = GetTicks();

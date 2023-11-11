@@ -9,10 +9,17 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
+if(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MT")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MT")
+    string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+
+endif()
+
 project ("uchu-p")
 
 set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp" "src/game/uchu.cpp")
-set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h")
+set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h" "src/game/key_binding.h" )
 
 # Ajoutez une source à l'exécutable de ce projet.
 add_executable (uchu-p ${SRC_FILE} ${HEADER_FILE})
@@ -24,6 +31,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     # Remember to add the include directories of any other libraries too
 )
 
+if(WIN32)
+     target_link_options(uchu-p PRIVATE "/subsystem:windows,5.1")
+     #target_compile_options(uchu-p PRIVATE "/D_WIN32_WINNT=0x0501")
+endif()
+
+message(STATUS "Modified string: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Modified string: ${CMAKE_CXX_FLAGS_RELEASE}")
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET uchu-p PROPERTY CXX_STANDARD 20)
 endif()
