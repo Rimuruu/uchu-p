@@ -255,7 +255,7 @@ int loop(Game* game) {
     LONGLONG startTimeFrame;
     LONGLONG endTime;
     LONGLONG startTime = GetTicks();
-  
+    init();
     while (RUNNING){
         startTimeFrame = GetTicks();
         while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE))

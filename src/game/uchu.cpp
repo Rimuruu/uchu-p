@@ -1,7 +1,7 @@
 #include "uchu.h"
-
-
-
+#include "component/box.h"
+#include "component/position.h"
+#include "ecs/ecs.h"
 
 Buffer::Buffer(unsigned int width, unsigned int heigth) {
 	this->sizeX = width;
@@ -14,17 +14,38 @@ Buffer::~Buffer() {
 	
 }
 
+Entity e;
+
+void init() {
+	e.addComponent<Position2D>(100,100);
+	e.addComponent<Box>(200,200);
+}
 
 struct player {
 	int x = 0;
 	int y = 0;
-	int vX = 0;
-	int vY = 0;
+	int v[2];
+;
 	int velocity = 10;
+	int m[4];
 	void update() {
-		this->x = this->x + (vX * velocity);
-		this->y = this->y + (vY * velocity);
+		this->move();
+		this->x = this->x + (v[0] * velocity);
+		this->y = this->y + (v[1] * velocity);
+		
+
 	}
+	void setMove(int dir,int state) {
+		m[dir] = state;
+	}
+	void move() {
+	
+		v[1] = (m[0] ^ -m[1]) != 0xFFFFFFFE ? m[0] ^ -m[1] : 0;
+		v[0] = (m[2] ^ -m[3]) != 0xFFFFFFFE ? m[2] ^ -m[3] : 0;
+	}
+
+	
+
 };
 
 player p;
@@ -33,19 +54,19 @@ void handleKey(Button_state b) {
 	switch (b.keyCode) {
 	case K_UP:
 		printFormat(INFO, "UP %hu", b.state);
-		p.vY = b.state == 1 ? 1 : 0;
+		p.setMove(0,b.state);
 		break;
 	case K_RIGHT:
 		printFormat(INFO, "RIGHT %hu",b.state);
-		p.vX = b.state == 1 ? 1 : 0;
+		p.setMove(2, b.state);
 		break;
 	case K_DOWN:
 		printFormat(INFO, "DOWN %hu", b.state);
-		p.vY = b.state == 1 ? -1 : 0;
+		p.setMove(1, b.state);
 		break;
 	case K_LEFT:
 		printFormat(INFO, "LEFT %hu", b.state);
-		p.vX = b.state == 1 ? -1 : 0;
+		p.setMove(3, b.state);
 		break;
 	case K_SPACE:
 		printFormat(INFO, "SPACE %hu", b.state);
@@ -78,9 +99,6 @@ void bouncingCube(Game* game) {
 	
 
 
-	drawRectangle(0, 0, 100, 100, 0x00FF0000);
-	drawRectangle(100, 100, 200, 200, 0x00FF00FF);
-	drawRectangle(200, 200, 300, 300, 0x00FFFF00);
 	drawRectangle(srcX, srcY, destX, destY, 0x12386f);
 
 	srcX = srcX + (vX * speed);
@@ -98,13 +116,15 @@ void bouncingCube(Game* game) {
 }
 
 
+
+
 void updateAndRender(Game* game) {
 	
 	handleInput(&(game->input));
 	p.update();
 	drawRectangle(0, 0, game->buffer.sizeX, game->buffer.sizeY, 0);
 	drawRectangle(p.x, p.y, p.x+100, p.y + 100, 0x009342f5);
-
+	e.render();
 	bouncingCube(game);
 
 

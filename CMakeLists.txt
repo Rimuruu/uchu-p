@@ -18,11 +18,11 @@ endif()
 
 project ("uchu-p")
 
-set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp" "src/game/uchu.cpp")
-set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h" "src/game/key_binding.h" )
+set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp" "src/game/uchu.cpp" "src/lib/ecs/ecs.cpp" "src/game/component/box.cpp" "src/game/component/position.cpp")
+set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h" "src/game/key_binding.h" "src/lib/ecs/ecs.h" "src/game/component/box.h" "src/game/component/position.h")
 
 # Ajoutez une source à l'exécutable de ce projet.
-add_executable (uchu-p ${SRC_FILE} ${HEADER_FILE})
+add_executable (uchu-p ${SRC_FILE} ${HEADER_FILE} )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     src/lib

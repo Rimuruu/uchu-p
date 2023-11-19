@@ -2,11 +2,14 @@
 #include "key_binding.h"
 #include "logger.h"
 #include "graphic.h"
+#include "ecs/ecs.h"
 #define BYTES_PER_PIXEL 4
 
 
 typedef unsigned int u_int32;
 
+
+void init();
 
 struct Buffer {
 	// RR GG BB

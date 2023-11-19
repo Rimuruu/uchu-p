@@ -21,7 +21,7 @@ int main()
 	Buffer buffer = Buffer(WIDTH, HEIGHT);
 	Game_input input = Game_input();
 	Game game{ buffer,input };
-	//time_t t = time(NULL);
+
 	print(INFO, "HELLO");
 	print(DEBUG, "HELLO");
 	print(ERROR, "HELLO");
