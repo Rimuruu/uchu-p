@@ -2,11 +2,15 @@
 #include <vector>
 #include <array>
 #include "logger.h"
-#define MAX_COMPONENT 32
+
+#define MAX_COMPONENT 1024
+
+typedef unsigned int u_int32;
 
 struct System;
 struct Entity;
 struct Component;
+struct Button_state;
 
 int componentId();
 
@@ -16,7 +20,7 @@ template <typename T> int getComponentTypeID() {
 }
 
 struct System {
-	std::vector<Entity*> entities;
+	std::vector<Entity*> entities = { nullptr };
 
 
 	template <typename T, typename... Targs>
@@ -25,13 +29,20 @@ struct System {
 		entities.emplace(e);
 	}
 
+
+	void pushEntity(Entity* e) {
+
+		this->entities.emplace_back(e);
+	}
+
 	virtual void init();
 	virtual void update();
 	virtual void render();
 	virtual void end();
 };
 struct Entity {
-	std::array<Component*, MAX_COMPONENT> components;
+	int isActive;
+	std::array<Component*, MAX_COMPONENT> components = { nullptr };
 	template <typename T, typename... Targs>
 	void addComponent(Targs&&... mArgs)
 	{
@@ -51,11 +62,13 @@ struct Entity {
 
 	virtual void init();
 	virtual void update();
+	virtual void handleInput(u_int32 keyCode, short state);
 	virtual void render();
 	virtual void end();
 };
 struct Component {
 	Entity* e;
+	int isActive;
 	int id;
 	virtual void init();
 	virtual void update();

@@ -3,7 +3,7 @@
 #define UNICODE
 #define _WIN32_WINNT 0x502 
 #include <windows.h>
-
+ 
 
 
 HWND hwnd;
@@ -255,7 +255,8 @@ int loop(Game* game) {
     LONGLONG startTimeFrame;
     LONGLONG endTime;
     LONGLONG startTime = GetTicks();
-    init();
+    init(game);
+
     while (RUNNING){
         startTimeFrame = GetTicks();
         while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE))
@@ -277,6 +278,7 @@ int loop(Game* game) {
             countFrame = 0;
         }
     }
+    end(game);
     
         
         

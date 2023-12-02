@@ -3,13 +3,15 @@
 #include "logger.h"
 #include "graphic.h"
 #include "ecs/ecs.h"
+#include "entity/player.h"
+#include "system/inputSystem.h"
 #define BYTES_PER_PIXEL 4
 
 
 typedef unsigned int u_int32;
 
 
-void init();
+
 
 struct Buffer {
 	// RR GG BB
@@ -44,9 +46,12 @@ struct Game_input {
 struct Game {
 	Buffer buffer;
 	Game_input input;
+	Player* p;
+	InputSystem is;
 };
 
 
-
+void init(Game* game);
+void end(Game* game);
 
 void updateAndRender(Game* game);

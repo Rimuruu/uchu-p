@@ -6,6 +6,7 @@
 - abstact window api 
 	- load image to buffer
 	- input handler ok 
-	- sound
-- ecs ok
+	- sound can be better
+- ecs 
+	make system static
 - game base
