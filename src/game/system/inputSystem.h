@@ -1,13 +1,15 @@
-#pragma once 
 
+#include "uchu.h"
+#include <memory>
 #include "ecs/ecs.h"
+#include "component/input.h"
 
-struct Game_input;
-struct Button_state;
+#ifndef INPUTSYSTEM_H
+#define INPUTSYSTEM_H
 
 struct InputSystem : System {
 	Game_input* game_input;
-	InputSystem(Game_input* game_input);
+	InputSystem(Game_input game_input);
 	InputSystem();
 	
 	void update();
@@ -15,3 +17,7 @@ struct InputSystem : System {
 
 
 };
+
+#endif // !INPUTSYSTEM_H
+
+

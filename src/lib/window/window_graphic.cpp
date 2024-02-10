@@ -3,14 +3,16 @@
 #define UNICODE
 #define _WIN32_WINNT 0x502 
 #include <windows.h>
- 
-
+#include "key_binding.h" 
+#include "uchu.h"
 
 HWND hwnd;
 
 int FPS = 60;
 int RUNNING = 1;
 int FRAMETIME = 1000 / FPS;
+
+typedef unsigned int u_int32;
 
 std::unordered_map<u_int32, u_int32> keyMapping = {
 
@@ -74,6 +76,49 @@ LPCWSTR ConvertToLPCWSTR(const char* text) {
 
     return wideText;
 }
+
+
+BMPFile* loadImageBMP(const char* filePath) {
+    BMPFile* fileW = nullptr;
+    char* buffer = nullptr;
+
+    int fileSize = 0;
+    auto file = fopen(filePath, "rb");
+    if (!file)
+    {
+        return nullptr;
+    }
+
+    fseek(file, 0, SEEK_END);
+    fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    buffer = (char*)malloc(sizeof(char) * (fileSize));
+    if (buffer == nullptr) return nullptr;
+    memset(buffer, 0, fileSize + 1);
+    fread(buffer, sizeof(char), BMPHEADERSIZE, file);
+
+    
+    fileW = (BMPFile*)buffer;
+    if(fileW->infoHeader.bitCount <= 8){
+        fileW->table = (Color*)malloc(sizeof(Color) * (fileW->infoHeader.bitCount));
+        fseek(file, BMPHEADERSIZE, SEEK_SET);
+        fread((char*)fileW->table, sizeof(char), fileW->infoHeader.bitCount * sizeof(Color), file);
+        fseek(file, BMPHEADERSIZE + fileW->infoHeader.bitCount * sizeof(Color), SEEK_SET);
+    }
+    else {
+        fseek(file, BMPHEADERSIZE, SEEK_SET);
+    }
+
+  
+    fileW->data = (char*)malloc(sizeof(char) * (fileW->infoHeader.imageSize));
+    fread((char*)fileW->data, sizeof(char), fileW->infoHeader.imageSize, file);
+
+    fclose(file);
+    return fileW;
+
+
+}
+
 
 int createWindow(int x, int y, int width, int height, const char* title,Game* game) {
 

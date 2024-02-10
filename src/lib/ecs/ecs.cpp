@@ -2,11 +2,6 @@
 
 
 
-int componentId() {
-	 static int id = -1;
-	 id++;
-	 return id;
-}
 
 
 
@@ -73,3 +68,4 @@ void Component::render() {
 void Component::end() {
 
 }
+

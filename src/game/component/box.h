@@ -4,6 +4,8 @@
 
 
 
+#ifndef BOX_H
+#define BOX_H
 
 
 struct Box : public Component {
@@ -21,3 +23,4 @@ struct Box : public Component {
 
 
 };
+#endif // !BOX_H

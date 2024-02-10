@@ -6,6 +6,7 @@
 #include "uchu.h"
 #include "time.h"
 #include <stdio.h>
+#include "sound.h"
 
 
 
@@ -16,19 +17,23 @@ const int HEIGHT = 800;
 const char* title = "Uchu Game";
 short RUNNING = 1;
 
+const char * fileSounds[] = { "./assets/sound/shoot.wav","./assets/sound/shoot2.wav"};
+
+
+
+
 int main()
 {
 	Buffer buffer = Buffer(WIDTH, HEIGHT);
 	Game_input input = Game_input();
 	Game game{ buffer,input };
 
-	print(INFO, "HELLO");
-	print(DEBUG, "HELLO");
-	print(ERROR, "HELLO");
-
+	loadImageBMP("./assets/img/t.bmp");
+	
 	createWindow(100, 100,WIDTH,HEIGHT, title, &game);
+	initSound(fileSounds,2);
 	loop(&game);
-
+	cleanup();
 
 
 	return 0;

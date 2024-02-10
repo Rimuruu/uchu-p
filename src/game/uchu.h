@@ -4,8 +4,13 @@
 #include "graphic.h"
 #include "ecs/ecs.h"
 #include "entity/player.h"
-#include "system/inputSystem.h"
+#include "entity/bullet.h"
+#include "system/system.h"
+
 #define BYTES_PER_PIXEL 4
+
+#ifndef UCHU_H
+#define UCHU_H
 
 
 typedef unsigned int u_int32;
@@ -47,7 +52,6 @@ struct Game {
 	Buffer buffer;
 	Game_input input;
 	Player* p;
-	InputSystem is;
 };
 
 
@@ -55,3 +59,6 @@ void init(Game* game);
 void end(Game* game);
 
 void updateAndRender(Game* game);
+
+#endif // !UCHU_H
+

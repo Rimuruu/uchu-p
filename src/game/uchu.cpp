@@ -1,6 +1,4 @@
 #include "uchu.h"
-#include "entity/bullet.h"
-
 
 Buffer::Buffer(unsigned int width, unsigned int heigth) {
 	this->sizeX = width;
@@ -18,12 +16,14 @@ Buffer::~Buffer() {
 void init(Game* game) {
 
 	
+	ms.entities.size();
 
-
-	game->is.game_input = &(game->input);
+	is.game_input = &(game->input);
 	game->p = new Player(100, 100, 100, 100, 10);
 	game->p->isActive = 1;
-	game->is.pushEntity(game->p);
+	is.pushEntity(game->p);
+	ms.pushEntity(game->p);
+	gs.pushEntity(game->p);
 
 }
 
@@ -62,12 +62,14 @@ void bouncingCube(Game* game) {
 
 }
 
-Bullet b(10, 10, 10, 10, 1, 0, 1);
+
+
+
 void updateAndRender(Game* game) {
 
-
+	/*
 	b.update();
-	game->is.update();
+	
 	game->p->update();
 	
 	drawRectangle(0, 0, game->buffer.sizeX, game->buffer.sizeY, 0);
@@ -75,7 +77,18 @@ void updateAndRender(Game* game) {
 	game->p->render();
 	
 	bouncingCube(game);
+	*/
 
+	// update system do specific action on component
+
+	// update all entities k
+
+	is.update();
+	ms.update();
+
+
+	drawRectangle(0, 0, game->buffer.sizeX, game->buffer.sizeY, 0);
+	gs.render();
 
 
 

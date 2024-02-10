@@ -1,4 +1,8 @@
-#pragma once
+
+
+#ifndef LOGGER_H
+#define LOGGER_H
+
 
 enum level {
 	INFO = 1,
@@ -11,3 +15,6 @@ void print(level level, const char* message);
 
 void printFormat(level level, const char* format, ...);
 // 1 = info, 2 = debug, 3 = error
+
+#endif // !LOGGER_H
+

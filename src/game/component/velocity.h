@@ -1,6 +1,7 @@
-#pragma once 
 #include "ecs/ecs.h"
 
+#ifndef VELOCITY_H
+#define VELOCITY_H
 
 struct Velocity : public Component {
 	int Vx, Vy,speed;
@@ -17,3 +18,7 @@ struct Velocity : public Component {
 
 
 };
+
+#endif // !VELOCITY_H
+
+

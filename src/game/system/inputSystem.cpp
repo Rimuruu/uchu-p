@@ -1,5 +1,5 @@
 #include "inputSystem.h"
-#include "uchu.h"
+#include "inputSystem.h"
 
 void InputSystem::update() {
 	Button_state b;
@@ -8,14 +8,26 @@ void InputSystem::update() {
 		if (b.keyCode == 0) {
 			break;
 		}
-		for (Entity* e : entities) {
+		for (std::shared_ptr<Entity >e : entities) {
 			if (e && e->isActive) {
-				e->handleInput(b.keyCode,b.state);
-
+				InputComponent* i = e->getComponent<InputComponent>();
+				if (i && i->isActive) {
+					i->handle(b);
+				}
+		
 			}
 		}
 
 
+	}
+	for (std::shared_ptr<Entity > e : entities) {
+		if (e && e->isActive) {
+			InputComponent* i = e->getComponent<InputComponent>();
+			if (i && i->isActive) {
+				i->update();
+			}
+
+		}
 	}
 	
 }
@@ -24,3 +36,6 @@ void InputSystem::update() {
 InputSystem::InputSystem() {
 
 }
+
+
+InputSystem is;

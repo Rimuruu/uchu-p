@@ -1,5 +1,8 @@
-#pragma once
 #include "box.h"
+
+
+#ifndef POSITION_H
+#define POSITION_H
 
 struct Position2D : public Component {
 	int x, y;
@@ -12,3 +15,7 @@ struct Position2D : public Component {
 	void end();
 
 };
+
+
+#endif // !1
+

@@ -18,8 +18,8 @@ endif()
 
 project ("uchu-p")
 
-set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp" "src/game/uchu.cpp" "src/lib/ecs/ecs.cpp" "src/game/component/box.cpp" "src/game/component/position.cpp" "src/game/entity/player.cpp" "src/game/system/inputSystem.cpp" "src/game/component/input.cpp" "src/game/component/velocity.cpp" "src/lib/window/window_sound.cpp" "src/game/entity/bullet.cpp")
-set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h" "src/game/key_binding.h" "src/lib/ecs/ecs.h" "src/game/component/box.h" "src/game/component/position.h" "src/game/entity/player.h" "src/game/system/inputSystem.h" "src/game/component/input.h" "src/game/component/velocity.h" "src/lib/sound.h" "src/game/entity/bullet.h"  "src/game/component/action.h" "src/game/component/player/shoot.h")
+set(SRC_FILE "src/main.cpp" "src/lib/window/window_logger.cpp" "src/lib/window/window_graphic.cpp" "src/game/uchu.cpp" "src/lib/ecs/ecs.cpp" "src/game/component/box.cpp" "src/game/component/position.cpp" "src/game/entity/player.cpp" "src/game/system/inputSystem.cpp" "src/game/component/input.cpp" "src/game/component/velocity.cpp" "src/lib/window/window_sound.cpp" "src/game/entity/bullet.cpp" "src/game/system/graphicSystem.cpp" "src/game/system/movementSystem.cpp")
+set(HEADER_FILE "src/lib/logger.h" "src/lib/graphic.h" "src/game/key_binding.h" "src/lib/ecs/ecs.h" "src/game/component/box.h" "src/game/component/position.h" "src/game/entity/player.h" "src/game/component/input.h" "src/game/component/velocity.h" "src/lib/sound.h" "src/game/entity/bullet.h"  "src/game/component/action.h" "src/game/component/player/shoot.h" "src/game/system/system.h" "src/game/system/movementSystem.h")
 
 # Ajoutez une source à l'exécutable de ce projet.
 add_executable (uchu-p ${SRC_FILE} ${HEADER_FILE} )
@@ -30,6 +30,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   
     # Remember to add the include directories of any other libraries too
 )
+
+file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
 if(WIN32)
      target_link_options(uchu-p PRIVATE "/subsystem:windows,5.1")

@@ -2,6 +2,11 @@
 #include <vector>
 #include <array>
 #include "logger.h"
+#include <memory>
+
+#ifndef ECS_H
+#define ECS_H
+
 
 #define MAX_COMPONENT 1024
 
@@ -12,27 +17,35 @@ struct Entity;
 struct Component;
 struct Button_state;
 
-int componentId();
+inline int componentId() {
+	static int id = -1;
+	id++;
+	return id;
+}
 
-template <typename T> int getComponentTypeID() {
+
+template <typename T> inline int getComponentTypeID() {
 	static int id = componentId();
 	return id;
 }
 
 struct System {
-	std::vector<Entity*> entities = { nullptr };
+	std::vector<std::shared_ptr<Entity>> entities;
 
 
 	template <typename T, typename... Targs>
 	T& addEntity(Targs&&... mArgs) {
-		T* e = new T(mArgs...);
-		entities.emplace(e);
+
+		entities.emplace(std::make_shared<Entity>(mArgs...));
 	}
 
 
-	void pushEntity(Entity* e) {
+	void pushEntity(Entity * e) {
+		std::shared_ptr < Entity> ePtr{e};
 
-		this->entities.emplace_back(e);
+		this->entities.push_back(std::move(ePtr));
+
+
 	}
 
 	virtual void init();
@@ -41,7 +54,7 @@ struct System {
 	virtual void end();
 };
 struct Entity {
-	int isActive;
+	int isActive = true;
 	std::array<Component*, MAX_COMPONENT> components = { nullptr };
 	template <typename T, typename... Targs>
 	void addComponent(Targs&&... mArgs)
@@ -68,10 +81,12 @@ struct Entity {
 };
 struct Component {
 	Entity* e;
-	int isActive;
+	int isActive=true;
 	int id;
 	virtual void init();
 	virtual void update();
 	virtual void render();
 	virtual void end();
 };
+
+#endif
