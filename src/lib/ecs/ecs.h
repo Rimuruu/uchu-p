@@ -40,12 +40,34 @@ struct System {
 	}
 
 
-	void pushEntity(Entity * e) {
+	std::shared_ptr < Entity> pushEntity(Entity * e) {
 		std::shared_ptr < Entity> ePtr{e};
 
-		this->entities.push_back(std::move(ePtr));
+		this->entities.push_back(ePtr);
+		return ePtr;
 
 
+	}
+
+	void pushEntity(std::shared_ptr < Entity> e) {
+		
+
+		this->entities.push_back(std::move(e));
+
+
+	}
+
+	void removedEntity(Entity* e) {
+		std::vector<std::shared_ptr<Entity>>::iterator it;
+
+		for (it = entities.begin(); it != entities.end(); it++) {
+			Entity* itE = it->get();
+			if (itE == e) {
+				entities.erase(it);
+				break;
+			}
+		}
+				
 	}
 
 	virtual void init();
@@ -54,7 +76,8 @@ struct System {
 	virtual void end();
 };
 struct Entity {
-	int isActive = true;
+	int isActive = 1;
+	int isDestroyed = 0;
 	std::array<Component*, MAX_COMPONENT> components = { nullptr };
 	template <typename T, typename... Targs>
 	void addComponent(Targs&&... mArgs)
@@ -72,7 +95,7 @@ struct Entity {
 		return (T*)components[id];
 	}
 
-
+	virtual ~Entity();
 	virtual void init();
 	virtual void update();
 	virtual void handleInput(u_int32 keyCode, short state);
@@ -81,8 +104,9 @@ struct Entity {
 };
 struct Component {
 	Entity* e;
-	int isActive=true;
+	int isActive=1;
 	int id;
+	virtual ~Component();
 	virtual void init();
 	virtual void update();
 	virtual void render();

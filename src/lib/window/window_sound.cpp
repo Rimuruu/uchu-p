@@ -52,7 +52,7 @@ struct Sound {
 
 // hasmap of sound
 
-std::unordered_map<const char*, Sound> sounds;
+std::unordered_map<unsigned int, Sound> sounds;
 xAudioVoice voices[MAX_SOUNDS];
 WAVEFORMATEX wfx;
 
@@ -81,9 +81,9 @@ WAVFile* LoadWAV(const char* filePath)
      return fileW;
 }
 
-void playSound(const char* sound) {
+void playSound(unsigned a) {
     static int i = 0;
-       Sound s = sounds.at(sound);
+       Sound s = sounds.at(a);
 
     // Submit buffer and start playing
     XAUDIO2_BUFFER buffer = {};
@@ -112,19 +112,17 @@ void playSound(const char* sound) {
     if (SUCCEEDED(hr))
         hr = voice->voice->Start(0);
 
-    // Wait for the sound to finish playing (you may need to add more logic depending on your application)
-    // Sleep(static_cast<DWORD>(wfx.nSamplesPerSec * buffer.AudioBytes / (wfx.nChannels * wfx.wBitsPerSample / 8)));
 }
 
-void loadSound(const char** sf, int nbSf) {
+void loadSound(const char* sf , unsigned int a)  {
 
-    for (int i = 0; i < nbSf; i++) {
+
         Sound s;
-        s.file = LoadWAV(sf[i]);
-        std::pair<const char*, Sound> pair(sf[i], s);
+        s.file = LoadWAV(sf);
+        std::pair<unsigned int, Sound> pair(a, s);
         if(s.file) sounds.insert(pair);
           
-    }
+   
 
 }
 
@@ -218,11 +216,11 @@ void cleanup() {
 
 }
 
-void initSound(const char** sf,int nbSf){
+void initSound(){
 
 
     
-    loadSound(sf, nbSf);
+
     initXaudio2();
 
    

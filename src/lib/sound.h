@@ -38,9 +38,9 @@ struct WAVFile
 };
 #pragma pack(pop)
 
-
-void initSound(const char** sf,int nbSf);
-void playSound(const char* sound);
+void loadSound(const char* sf, unsigned int a);
+void initSound();
+void playSound(unsigned int a);
 void cleanup();
 
 #endif

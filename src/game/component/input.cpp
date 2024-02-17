@@ -2,6 +2,7 @@
 #include "box.h"
 
 
+
 void InputComponent::setMove(int dir, int state) {
 	m[dir] = state;
 }
@@ -31,7 +32,7 @@ void InputComponent::handle(Button_state b) {
 		if (b.state) {
 			Position2D* p = this->e->getComponent<Position2D>();
 			Box* b = this->e->getComponent<Box>();
-			playSound("./assets/sound/shoot.wav");
+			playSound(SHOOT);
 			if(b && p) spawnBullet(p->x+(b->w/2), p->y +(b->h/2), 0, 1);
 		}
 		break;
@@ -49,6 +50,6 @@ void InputComponent::update() {
 	if (v ) {
 		v->Vy = (this->m[0] ^ -this->m[1]) != 0xFFFFFFFE ? this->m[0] ^ -this->m[1] : 0;
 		v->Vx = (this->m[2] ^ -this->m[3]) != 0xFFFFFFFE ? this->m[2] ^ -this->m[3] : 0;
-		printFormat(INFO, "player %d %d", v->Vy, v->Vx);
+
 	}
 }

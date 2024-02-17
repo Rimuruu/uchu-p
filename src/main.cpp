@@ -28,12 +28,12 @@ int main()
 	Game_input input = Game_input();
 	Game game{ buffer,input };
 
-	loadImageBMP("./assets/img/t.bmp");
 	
 	createWindow(100, 100,WIDTH,HEIGHT, title, &game);
-	initSound(fileSounds,2);
+	initSound();
 	loop(&game);
 	cleanup();
+	cleanupImage();
 
 
 	return 0;

@@ -1,5 +1,5 @@
 #include "ecs.h"
-
+#include "logger.h"
 
 
 
@@ -56,6 +56,10 @@ void Entity::end() {
 	}
 }
 
+Entity::~Entity() {
+
+}
+
 void Component::init() {
 
 }
@@ -69,3 +73,6 @@ void Component::end() {
 
 }
 
+Component::~Component() {
+
+}

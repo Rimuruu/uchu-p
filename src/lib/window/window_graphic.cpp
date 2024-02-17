@@ -22,6 +22,7 @@ std::unordered_map<u_int32, u_int32> keyMapping = {
     {VK_LEFT,K_LEFT},
     {VK_SPACE,K_SPACE},
 };
+std::unordered_map<unsigned int, BMPFile*> sprites;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -81,8 +82,9 @@ LPCWSTR ConvertToLPCWSTR(const char* text) {
 BMPFile* loadImageBMP(const char* filePath) {
     BMPFile* fileW = nullptr;
     char* buffer = nullptr;
-
+    int offset = 0;
     int fileSize = 0;
+    int isPadding = 0;
     auto file = fopen(filePath, "rb");
     if (!file)
     {
@@ -104,20 +106,43 @@ BMPFile* loadImageBMP(const char* filePath) {
         fseek(file, BMPHEADERSIZE, SEEK_SET);
         fread((char*)fileW->table, sizeof(char), fileW->infoHeader.bitCount * sizeof(Color), file);
         fseek(file, BMPHEADERSIZE + fileW->infoHeader.bitCount * sizeof(Color), SEEK_SET);
+        offset = BMPHEADERSIZE + fileW->infoHeader.bitCount * sizeof(Color);
     }
     else {
         fseek(file, BMPHEADERSIZE, SEEK_SET);
+        offset = BMPHEADERSIZE;
     }
 
-  
+    int padding = 4 - ((fileW->infoHeader.width * 3) % 4);
+    padding = 4 ? 0 : padding;
     fileW->data = (char*)malloc(sizeof(char) * (fileW->infoHeader.imageSize));
-    fread((char*)fileW->data, sizeof(char), fileW->infoHeader.imageSize, file);
+    memset(fileW->data, 0, fileW->infoHeader.imageSize);
+    int i, y;
+    for ( i = offset, y = 0; i < fileW->infoHeader.imageSize; i = i + (fileW->infoHeader.width * 3) +padding,y = y + (fileW->infoHeader.width * 3)) {
+        fseek(file, i, SEEK_SET);
+        fread((char*)fileW->data+y, sizeof(char), fileW->infoHeader.width*3, file);
+        
+    }
+   
+    
+
 
     fclose(file);
     return fileW;
 
 
 }
+
+
+int loadImage(const char* filePath,unsigned int a) {
+    BMPFile* image = loadImageBMP(filePath);
+    if (image == nullptr) return -1;
+    std::pair<unsigned int, BMPFile*> pair(a, image);
+    sprites.emplace(pair);
+
+}
+
+
 
 
 int createWindow(int x, int y, int width, int height, const char* title,Game* game) {
@@ -360,6 +385,63 @@ int drawRectangle(int srcX, int srcY, int destX, int destY, int color) {
 
     return 0;
 
+}
+
+struct int24 {
+    char data[3];
 
 
+
+
+};
+
+
+int drawImage(int destX, int destY, unsigned int a) {
+
+    BMPFile image = *(sprites.at(a));
+    u_int32* pixels = (u_int32*)globalBufferWin.memory;
+    int24* im = (int24*)image.data;
+    int maxX = destX + image.infoHeader.width >  globalBufferWin.width ? globalBufferWin.width : destX + image.infoHeader.width;
+    int maxY = destY + image.infoHeader.height > globalBufferWin.height ? globalBufferWin.height : destY + image.infoHeader.height;
+
+    int minX = destX < 0 ? 0 : destX;
+    int minY = destY < 0 ? 0 : destY;
+
+    int test = image.infoHeader.imageSize/ (image.infoHeader.bitCount/8) / image.infoHeader.height;
+    int test2 = image.infoHeader.imageSize / (image.infoHeader.bitCount / 8) / image.infoHeader.width;
+    int padding = (image.infoHeader.width * 3) % 4;
+
+    for (int x = minX; x < maxX; x++) {
+        for (int y = minY; y < maxY; y++) {
+            int caseX = (y * globalBufferWin.width) + x;
+            int iX = x - minX;
+            int iY = y - minY;
+            int24 color = *(im + (iY * image.infoHeader.width) + iX);
+            u_int32* tmp = (u_int32*)color.data;
+            pixels[caseX] = (*tmp) & 0x00FFFFFF;
+            int j = pixels[caseX];
+            
+        }
+    }
+
+
+
+    return 0;
+
+
+
+}
+
+int cleanupImage() {
+    std::unordered_map<unsigned int, BMPFile *>::iterator it;
+    for (it = sprites.begin(); it != sprites.end(); it++)
+    {
+        BMPFile* file = it->second;
+        if (file != nullptr) {
+            if (file->table != nullptr) free(file->table);
+            if (file->data != nullptr) free(file->data);
+            free(file);
+        }
+    }
+    return 0;
 }

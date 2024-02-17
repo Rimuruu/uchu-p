@@ -1,5 +1,5 @@
 #include "uchu.h"
-
+#include "asset.h"
 Buffer::Buffer(unsigned int width, unsigned int heigth) {
 	this->sizeX = width;
 	this->sizeY = heigth;
@@ -12,18 +12,21 @@ Buffer::~Buffer() {
 }
 
 
-
+BMPFile* defaultTexture;
 void init(Game* game) {
 
-	
-	ms.entities.size();
+	loadImage("./assets/img/t2.bmp",TEST2);
+	loadImage("./assets/img/t.bmp", TEST);
 
+	loadSound("./assets/sound/shoot.wav", SHOOT);
+
+	ms.entities.size();
 	is.game_input = &(game->input);
 	game->p = new Player(100, 100, 100, 100, 10);
 	game->p->isActive = 1;
-	is.pushEntity(game->p);
-	ms.pushEntity(game->p);
-	gs.pushEntity(game->p);
+	auto pp = is.pushEntity(game->p);
+	ms.pushEntity(pp);
+	gs.pushEntity(pp);
 
 }
 
@@ -34,50 +37,13 @@ void end(Game* game) {
 
 
 
-void bouncingCube(Game* game) {
-	static int srcX = 0;
-	static int srcY = 0;
-	static int destX = 100;
-	static int destY = 100;
-	static int vX = 1;
-	static int vY = 1;
-	const int speed = 10;
-	
-	
-
-
-	drawRectangle(srcX, srcY, destX, destY, 0x12386f);
-
-	srcX = srcX + (vX * speed);
-	srcY = srcY + (vY * speed);
-	destX = destX + (vX * speed);
-	destY = destY + (vY * speed);
-
-	if (srcX <= 0 || destX >= game->buffer.sizeX) {
-		vX = -vX;
-	}
-	if (srcY <= 0 || destY >= game->buffer.sizeY) {
-		vY = -vY;
-	}
-
-}
 
 
 
 
 void updateAndRender(Game* game) {
 
-	/*
-	b.update();
-	
-	game->p->update();
-	
-	drawRectangle(0, 0, game->buffer.sizeX, game->buffer.sizeY, 0);
-	b.render();
-	game->p->render();
-	
-	bouncingCube(game);
-	*/
+
 
 	// update system do specific action on component
 
@@ -87,8 +53,10 @@ void updateAndRender(Game* game) {
 	ms.update();
 
 
+
 	drawRectangle(0, 0, game->buffer.sizeX, game->buffer.sizeY, 0);
 	gs.render();
+	cl.update();
 
 
 

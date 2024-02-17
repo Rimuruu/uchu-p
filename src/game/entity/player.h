@@ -4,7 +4,7 @@
 #include "key_binding.h"
 #include "sound.h"
 #include "component/input.h"
-
+#include "component/sprite.h"
 
 #ifndef PLAYER_H
 #define PLAYER_H

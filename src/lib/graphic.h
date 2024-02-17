@@ -67,12 +67,14 @@ struct BMPFile {
 
 
 
-
 BMPFile* loadImageBMP(const char* filePath);
+int loadImage(const char* filePath,unsigned int a );
+int drawImage(int destX, int destY, unsigned int a);
 
 int createWindow(int x,int y, int width,int height, const char* title, Game* game);
 int loop(Game* game);
 int drawRectangle(int srcX, int srcY, int destX, int destY, int color);
+int cleanupImage();
 #endif // !GRAPHIC_H
 
 
