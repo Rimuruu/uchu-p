@@ -11,6 +11,8 @@ HWND hwnd;
 int FPS = 60;
 int RUNNING = 1;
 int FRAMETIME = 1000 / FPS;
+int WIDTH;
+int HEIGHT;
 
 typedef unsigned int u_int32;
 
@@ -162,6 +164,10 @@ int createWindow(int x, int y, int width, int height, const char* title,Game* ga
     wc.lpszClassName = CLASS_NAME;
 
     RegisterClass(&wc);
+
+    WIDTH = width;
+    HEIGHT = height;
+
 
     // Create the window.
 
@@ -401,25 +407,37 @@ int drawImage(int destX, int destY, unsigned int a) {
     BMPFile image = *(sprites.at(a));
     u_int32* pixels = (u_int32*)globalBufferWin.memory;
     int24* im = (int24*)image.data;
-    int maxX = destX + image.infoHeader.width >  globalBufferWin.width ? globalBufferWin.width : destX + image.infoHeader.width;
-    int maxY = destY + image.infoHeader.height > globalBufferWin.height ? globalBufferWin.height : destY + image.infoHeader.height;
+
+    if (destY > globalBufferWin.height || destX > globalBufferWin.width) return 0;
+
+    int imageWidth =  image.infoHeader.width;
+    int imageHeight =  image.infoHeader.height;
+
+    int maxX = destX +  imageWidth >  globalBufferWin.width ? globalBufferWin.width : destX +  imageWidth;
+    int maxY = destY + imageHeight > globalBufferWin.height ? globalBufferWin.height : destY + imageHeight;
+
+    maxX = maxX < 0 ? 0 : maxX;
+    maxY = maxY < 0 ? 0 : maxY;
+
 
     int minX = destX < 0 ? 0 : destX;
     int minY = destY < 0 ? 0 : destY;
 
-    int test = image.infoHeader.imageSize/ (image.infoHeader.bitCount/8) / image.infoHeader.height;
-    int test2 = image.infoHeader.imageSize / (image.infoHeader.bitCount / 8) / image.infoHeader.width;
-    int padding = (image.infoHeader.width * 3) % 4;
+    minX = minX  > globalBufferWin.width ? globalBufferWin.width : minX ;
+    minY = minY  > globalBufferWin.height ? globalBufferWin.height : minY ;
+
 
     for (int x = minX; x < maxX; x++) {
         for (int y = minY; y < maxY; y++) {
+            if ((x > WIDTH && x < 0) || (y > HEIGHT && y < 0)) continue;
             int caseX = (y * globalBufferWin.width) + x;
             int iX = x - minX;
             int iY = y - minY;
-            int24 color = *(im + (iY * image.infoHeader.width) + iX);
+            int t = (iY *  imageWidth) + iX;
+            int24 color = *(im + (iY *  imageWidth) + iX);
             u_int32* tmp = (u_int32*)color.data;
             pixels[caseX] = (*tmp) & 0x00FFFFFF;
-            int j = pixels[caseX];
+         
             
         }
     }

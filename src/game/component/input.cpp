@@ -33,6 +33,7 @@ void InputComponent::handle(Button_state b) {
 			Position2D* p = this->e->getComponent<Position2D>();
 			Box* b = this->e->getComponent<Box>();
 			playSound(SHOOT);
+			nextLevel();
 			if(b && p) spawnBullet(p->x+(b->w/2), p->y +(b->h/2), 0, 1);
 		}
 		break;

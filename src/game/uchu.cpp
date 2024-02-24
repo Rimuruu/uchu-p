@@ -11,31 +11,48 @@ Buffer::~Buffer() {
 	
 }
 
-
+Game* global_game = nullptr;
 BMPFile* defaultTexture;
 void init(Game* game) {
+	global_game = game;
+	unsigned int ** map = new unsigned int*[4];
+	static int x=0, y=0;
+	for (size_t i = 0; i < 4; i++)
+	{
+		map[i] = new unsigned int[4];
+		for (int y = 0; y < 4; y++)
+			map[i][y] = TEST3;
+	}
 
 	loadImage("./assets/img/t2.bmp",TEST2);
 	loadImage("./assets/img/t.bmp", TEST);
-
+	loadImage("./assets/img/t3.bmp", TEST3);
 	loadSound("./assets/sound/shoot.wav", SHOOT);
-
-	ms.entities.size();
 	is.game_input = &(game->input);
-	game->p = new Player(100, 100, 100, 100, 10);
-	game->p->isActive = 1;
-	auto pp = is.pushEntity(game->p);
-	ms.pushEntity(pp);
-	gs.pushEntity(pp);
+	Tilemap* t = new Tilemap(x,y,4, 4, 40,map);
+	Level* l = new Level(t);
+	loadLevel(game,l);
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		delete map[i];
+	
+	}
+	delete map;
+	x+=10;
+	y+=10;
 
 }
 
 void end(Game* game) {
-	delete game->p;
+	delete game->l;
 
 }
 
-
+void nextLevel() {
+	unloadLevel(global_game);
+	init(global_game);
+}
 
 
 
@@ -55,8 +72,10 @@ void updateAndRender(Game* game) {
 
 
 	drawRectangle(0, 0, game->buffer.sizeX, game->buffer.sizeY, 0);
+	game->l->render();
 	gs.render();
 	cl.update();
+	game->l->tilemap->y += 10;
 
 
 

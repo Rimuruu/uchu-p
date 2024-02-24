@@ -6,7 +6,7 @@
 #include "entity/player.h"
 #include "entity/bullet.h"
 #include "system/system.h"
-
+#include "level.h"
 #define BYTES_PER_PIXEL 4
 
 #ifndef UCHU_H
@@ -52,12 +52,13 @@ struct Game {
 	Buffer buffer;
 	Game_input input;
 	Player* p;
+	Level* l;
 };
 
 
 void init(Game* game);
 void end(Game* game);
-
+void nextLevel();
 void updateAndRender(Game* game);
 
 #endif // !UCHU_H

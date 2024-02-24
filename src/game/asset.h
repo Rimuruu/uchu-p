@@ -3,7 +3,8 @@
 #define ASSET_H
 enum ASSET_SPRITE : unsigned int {
 	TEST,
-	TEST2
+	TEST2,
+	TEST3,
 };
 
 enum ASSET_SOUND : unsigned int {
